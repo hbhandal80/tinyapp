@@ -43,8 +43,9 @@ app.listen(PORT, () => {
 
 app.post("/urls", (req, res) => {
   console.log(req.body);
-  urlDatabase[generateRandomString()] = req.body.longURL; 
-  res.send("Ok");         
+  let shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL; 
+  res.redirect(`/urls/:${shortURL}`);         
 });
 
 function generateRandomString() {

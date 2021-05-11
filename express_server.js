@@ -41,15 +41,20 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
+app.post('/urls/:shortURL/delete', (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+  res.redirect('/urls');
+});
+
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL; 
   console.log(req.body);
-  res.redirect(`/urls/:${shortURL}`);         
+  res.redirect(`/urls/${shortURL}`);         
 });
 
 function generateRandomString() {
-  var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
+  let chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
   var randomstring = '';
   for (let i = 0; i < 6; i++) {
    randomstring += (chars[Math.floor(Math.random() * chars.length)]);

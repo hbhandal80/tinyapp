@@ -7,10 +7,25 @@ const PORT = 8080; // default port 8080
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
-
+/*
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
+};
+*/
+function urlsForUser(id) {
+  let userUrls = {};
+  for (let url in urlDatabase) {
+    if (urlDatabase[url].userID === id) {
+      userUrls[url] = urlDatabase[url];
+    }
+  }
+  return userUrls;
+}
+
+const urlDatabase = {
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID"},
+  "9sm5xK": { longURL: "http://www.google.com", userID: "userRandomID"},
 };
 
 const users = { 
@@ -36,29 +51,33 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const templateVars = {
-    urls: urlDatabase,
+    urls: urlsForUser(req.cookies["userID"]),
     user: users[req.cookies["userID"]],
   };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
+  if (!users[req.cookies["userID"]]) {
+    res.redirect("/login");
+  } else {
   const templateVars = {
     urls: urlDatabase,
     user: users[req.cookies["userID"]],
   };
   res.render("urls_new", templateVars);
+}
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL]["longURL"];
   res.redirect(longURL);
 });
 
 // Display the urls_show page
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL]["longURL"];
 
   const templateVars = { 
     shortURL: shortURL, 
@@ -91,7 +110,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL; 
+  urlDatabase[shortURL] = { longURL: req.body.longURL, userID: req.cookies["userID"]};
   res.redirect(`/urls/${shortURL}`);  
 });
 
@@ -118,7 +137,6 @@ app.post("/login", (req, res) => {
   res.redirect("/urls");  
 }
 });
-
 
 app.post("/logout", (req, res) => {
   res.clearCookie("userID");

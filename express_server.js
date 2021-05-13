@@ -95,11 +95,13 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);  
 });
 
+/*
 app.post("/login", (req, res) => {
   const username = req.body.username;
   res.cookie("userID", userID);
   res.redirect('/urls');
 });
+*/
 
 app.post("/logout", (req, res) => {
   res.clearCookie("userID");
@@ -134,6 +136,16 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");  
 }
 });
+
+//Login page
+app.get("/login", (req, res) => {
+  const templateVars = { 
+    user: users[req.cookies["userID"]],
+  };
+  res.render("urls_login", templateVars);
+});
+
+
 
 function userExists(email) {
   for (user in users) {

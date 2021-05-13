@@ -17,12 +17,12 @@ const users = {
   "userRandomID": {
     id: "userRandomID", 
     email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
+    password: "1234"
   },
  "user2RandomID": {
     id: "user2RandomID", 
     email: "user2@example.com", 
-    password: "dishwasher-funk"
+    password: "hello"
   }
 };
 
@@ -95,13 +95,30 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);  
 });
 
-/*
-app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie("userID", userID);
-  res.redirect('/urls');
+//Login page
+app.get("/login", (req, res) => {
+  const templateVars = { 
+    user: users[req.cookies["userID"]],
+  };
+  res.render("urls_login", templateVars);
 });
-*/
+
+app.post("/login", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  if (!email || !password) {
+    res.status(400).send("Please enter a valid email and password");
+  } else if (!userExists(email)) {
+    res.status(403).send("This email is not registered");
+  } else if (userIDEmail(email)["password"] !== password) {  
+    res.status(403).send("Incorrect password");
+  } else {
+  res.cookie("userID", (userIDEmail(email)["id"]));
+  res.redirect("/urls");  
+}
+});
+
 
 app.post("/logout", (req, res) => {
   res.clearCookie("userID");
@@ -137,15 +154,13 @@ app.post("/register", (req, res) => {
 }
 });
 
-//Login page
-app.get("/login", (req, res) => {
-  const templateVars = { 
-    user: users[req.cookies["userID"]],
-  };
-  res.render("urls_login", templateVars);
-});
-
-
+function userIDEmail(email) {
+  for (id in users) {
+    if (users[id].email === email) {
+      return users[id];
+    }
+  }
+}
 
 function userExists(email) {
   for (user in users) {

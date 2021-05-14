@@ -82,10 +82,16 @@ app.get("/urls/:shortURL", (req, res) => {
 
 //Edit url
 app.post("/urls/:id", (req, res) => {
-  const shortURL = req.params.id;
-  const longURL = req.body.longURL;
-  urlDatabase[shortURL]["longURL"] = longURL;
-  res.redirect("/urls");
+  let shortURL = req.params.id;
+  let longURL = req.body.longURL;
+  let user = req.cookies["userID"];
+  let urlUserId = urlDatabase[shortURL]["userID"];
+  if (user === urlUserId) {
+    urlDatabase[shortURL]["longURL"] = longURL;
+    res.redirect("/urls");
+  } else {
+    res.status(400).send("You do not have permissions to edit this URL");
+  }
 });
 
 app.get("/hello", (req, res) => {
@@ -98,8 +104,9 @@ app.listen(PORT, () => {
 
 //Delete URL
 app.post('/urls/:shortURL/delete', (req, res) => {
-  let user = [req.cookies["userID"]];
-  let urlUserId = urlDatabase[req.params.shortURL]["userID"];
+  let shortURL = req.params.shortURL;
+  let user = req.cookies["userID"];
+  let urlUserId = urlDatabase[shortURL]["userID"];
   if (user === urlUserId) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");

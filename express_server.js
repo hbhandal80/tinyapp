@@ -82,10 +82,8 @@ app.get("/urls/:shortURL", (req, res) => {
 
 //Edit url
 app.post("/urls/:id", (req, res) => {
-  console.log("update executed");
   const shortURL = req.params.id;
   const longURL = req.body.longURL;
-console.log("checking variables:" + shortURL, longURL);
   urlDatabase[shortURL]["longURL"] = longURL;
   res.redirect("/urls");
 });
@@ -100,8 +98,14 @@ app.listen(PORT, () => {
 
 //Delete URL
 app.post('/urls/:shortURL/delete', (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect("/urls");
+  let user = [req.cookies["userID"]];
+  let urlUserId = urlDatabase[req.params.shortURL]["userID"];
+  if (user === urlUserId) {
+    delete urlDatabase[req.params.shortURL];
+    res.redirect("/urls");
+  } else {
+    res.status(400).send("You do not have permissions to delete this URL");
+  }
 });
 
 app.post("/urls", (req, res) => {

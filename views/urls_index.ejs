@@ -9,12 +9,13 @@
   <title>TinyApp</title>
 </head>
 <body>
+  <%- include('partials/_header') %>
   <main style="margin: 1em;">
     <% if (user) { %>
     <h3>My URLs</h3>  
     
     <table class="table">
-      <thead> <%- include('partials/_header') %>
+      <thead> 
         <tr>
           <th scope="col">Short URL</th>
           <th scope="col">Long URL</th>
@@ -42,8 +43,8 @@
       </tbody>
     </table>
     <% } else { %>
-      <h2>Please log in or register</h2>
-      <% } %>
+      <h5>Please log in or register</h5>
+    <% } %>
   </main>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

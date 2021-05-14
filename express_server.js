@@ -13,19 +13,12 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 */
-function urlsForUser(id) {
-  let userUrls = {};
-  for (let url in urlDatabase) {
-    if (urlDatabase[url].userID === id) {
-      userUrls[url] = urlDatabase[url];
-    }
-  }
-  return userUrls;
-}
 
 const urlDatabase = {
   "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID"},
   "9sm5xK": { longURL: "http://www.google.com", userID: "userRandomID"},
+  "b145rf": { longURL: "http://www.bbc.co.uk", userID: "user2RandomID"},
+
 };
 
 const users = { 
@@ -66,7 +59,7 @@ app.get("/urls/new", (req, res) => {
     user: users[req.cookies["userID"]],
   };
   res.render("urls_new", templateVars);
-}
+  }
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -87,11 +80,13 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+//Edit url
 app.post("/urls/:id", (req, res) => {
+  console.log("update executed");
   const shortURL = req.params.id;
   const longURL = req.body.longURL;
-
-  urlDatabase[shortURL] = longURL;
+console.log("checking variables:" + shortURL, longURL);
+  urlDatabase[shortURL]["longURL"] = longURL;
   res.redirect("/urls");
 });
 
@@ -103,9 +98,10 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
+//Delete URL
 app.post('/urls/:shortURL/delete', (req, res) => {
   delete urlDatabase[req.params.shortURL];
-  res.redirect('/urls');
+  res.redirect("/urls");
 });
 
 app.post("/urls", (req, res) => {
@@ -140,7 +136,7 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   res.clearCookie("userID");
-  res.redirect('/urls');
+  res.redirect("/login");
 });
 
 //Registration page
@@ -171,6 +167,16 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");  
 }
 });
+
+function urlsForUser(id) {
+  let userUrls = {};
+  for (let url in urlDatabase) {
+    if (urlDatabase[url].userID === id) {
+      userUrls[url] = urlDatabase[url];
+    }
+  }
+  return userUrls;
+}
 
 function userIDEmail(email) {
   for (id in users) {

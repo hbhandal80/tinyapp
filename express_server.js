@@ -1,5 +1,5 @@
 /*--------------VARIABLES--------------*/
-const { userIDEmail } = require("./helpers");
+const { getUserByEmail } = require("./helpers");
 
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
@@ -97,9 +97,9 @@ app.post("/register", (req, res) => {
   const password = bcrypt.hashSync(req.body.password, 10);
 
   if (!email || !password) {
-    res.status(400).send("Please enter a valid email and password");
+    res.status(400).send("ERROR(400) - Please enter a valid email and password");
   } else if (userExists(email)) {
-    res.status(400).send("This email already exists");
+    res.status(400).send("ERROR(400) - This email already exists");
   } else {
     const userID = generateRandomString();
     users[userID] = {
@@ -125,14 +125,14 @@ app.post("/login", (req, res) => {
   const password = req.body.password;
   
   if (!email || !password) {
-    res.status(400).send("Please enter a valid email and password");
+    res.status(400).send("ERROR(400) - Please enter a valid email and password");
   } else if (!userExists(email)) {
-    res.status(403).send("This email is not registered");
-  } else if (bcrypt.compareSync(password, userIDEmail(email, users).password)) {
-    req.session["userID"] = userIDEmail(email, users).id;
+    res.status(403).send("ERROR(403) - This email is not registered");
+  } else if (bcrypt.compareSync(password, getUserByEmail(email, users).password)) {
+    req.session["userID"] = getUserByEmail(email, users).id;
     res.redirect("/urls");
   } else {
-    res.status(403).send("Incorrect password");
+    res.status(403).send("ERROR(403) - Incorrect password");
   }
 });
 
@@ -158,8 +158,6 @@ app.get("/urls/new", (req, res) => {
 //SHOW USERS URLS//
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  console.log(shortURL);
-  console.log(urlDatabase[shortURL]);
   const longURL = urlDatabase[shortURL].longURL;
 
   const templateVars = {
